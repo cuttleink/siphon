@@ -1,0 +1,15 @@
+.{
+    .name = .siphon,
+    .version = "0.0.0",
+
+    .fingerprint = 0x86354d32d089b17e,
+    .paths = .{ "src", "build.zig", "build.zig.zon" },
+
+    .dependencies = .{
+        .@"xcode-frameworks" = .{
+            .url = "git+https://codeberg.org/brodo/xcode-frameworks.git#v27.2",
+            .hash = "xcode_frameworks-0.0.0-VCh8gmdl9BRLVmGBqLlc2BCAdzPCUjud3h6vzn-L7QMJ",
+            .lazy = true,
+        },
+    },
+}

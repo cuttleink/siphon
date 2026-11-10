@@ -1,10 +1,19 @@
 const std = @import("std");
 
-pub fn build(b: *std.Build) void {
+pub fn build(b: *std.Build) !void {
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{});
+
+    const os = switch (target.result.os.tag) {
+        .macos => macos,
+        else => @panic(""),
+    }(b, target, optimize);
+
     const mod = b.createModule(.{
-        .target = b.standardTargetOptions(.{}),
-        .optimize = b.standardOptimizeOption(.{}),
+        .target = target,
+        .optimize = optimize,
         .root_source_file = b.path("src/main.zig"),
+        .imports = &.{.{ .name = "os", .module = os }},
     });
 
     const exe = b.addExecutable(.{
@@ -13,4 +22,29 @@ pub fn build(b: *std.Build) void {
     });
 
     b.installArtifact(exe);
+}
+
+fn macos(
+    b: *std.Build,
+    target: std.Build.ResolvedTarget,
+    optimize: std.lang.Optimize,
+) *std.Build.Module {
+    const dep = b.dependency("xcode-frameworks", .{});
+    const trans = b.addTranslateC(.{
+        .target = target,
+        .optimize = optimize,
+        .root_source_file = b.path("src/macos.h"),
+    });
+
+    trans.addIncludePath(dep.path("include"));
+    trans.addFrameworkPath(dep.path("Frameworks"));
+
+    const c = trans.createModule();
+    c.linkFramework("IOKit", .{});
+    c.linkFramework("CoreFoundation", .{});
+
+    return b.createModule(.{
+        .root_source_file = b.path("src/macos.zig"),
+        .imports = &.{.{ .name = "c", .module = c }},
+    });
 }
