@@ -2,7 +2,7 @@
     .name = .siphon,
     .version = "0.0.0",
 
-    .fingerprint = 0x86354d32d089b17e,
+    .fingerprint = 0xcdc2cac31fb8bca6,
     .paths = .{ "src", "build.zig", "build.zig.zon" },
 
     .dependencies = .{

@@ -1,12 +1,12 @@
 const std = @import("std");
 
-pub fn build(b: *std.Build) !void {
+pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
     const os = switch (target.result.os.tag) {
         .macos => macos,
-        else => @panic(""),
+        else => @panic("unsupported os"),
     }(b, target, optimize);
 
     const mod = b.createModule(.{
@@ -33,18 +33,21 @@ fn macos(
     const trans = b.addTranslateC(.{
         .target = target,
         .optimize = optimize,
-        .root_source_file = b.path("src/macos.h"),
+        .root_source_file = b.path("os/macos.h"),
     });
 
+    const frameworks = dep.path("Frameworks");
     trans.addIncludePath(dep.path("include"));
-    trans.addFrameworkPath(dep.path("Frameworks"));
+    trans.addFrameworkPath(frameworks);
 
     const c = trans.createModule();
-    c.linkFramework("IOKit", .{});
+    c.addFrameworkPath(frameworks);
+    c.addLibraryPath(dep.path("lib"));
     c.linkFramework("CoreFoundation", .{});
+    c.linkFramework("IOKit", .{});
 
     return b.createModule(.{
-        .root_source_file = b.path("src/macos.zig"),
+        .root_source_file = b.path("os/macos.zig"),
         .imports = &.{.{ .name = "c", .module = c }},
     });
 }
