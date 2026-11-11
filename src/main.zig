@@ -42,7 +42,11 @@ fn ls() !void {
 
     while (iter.next()) |drive| {
         defer drive.deinit();
-        std.debug.print("Hello, world!\n", .{});
+
+        std.debug.print("{s} {s}\n", .{
+            drive.vendor(),
+            drive.product(),
+        });
     }
 }
 

@@ -44,6 +44,7 @@ fn macos(
     c.addFrameworkPath(frameworks);
     c.addLibraryPath(dep.path("lib"));
     c.linkFramework("CoreFoundation", .{});
+    c.linkFramework("DiskArbitration", .{});
     c.linkFramework("IOKit", .{});
 
     return b.createModule(.{
