@@ -20,7 +20,6 @@ pub fn main(init: std.process.Init) !void {
         usage(name);
 
     _ = out;
-
     const bar: Bar = try .init(init.io);
     defer bar.deinit(init.io) catch {};
 
@@ -43,9 +42,17 @@ fn ls() !void {
     while (iter.next()) |drive| {
         defer drive.deinit();
 
-        std.debug.print("{s} {s}\n", .{
+        std.debug.print(
+            \\Vendor:  {s}
+            \\Product: {s}
+            \\Name:    {s}
+            \\Size:    {Bi:.2}
+            \\
+        , .{
             drive.vendor(),
             drive.product(),
+            drive.name(),
+            drive.size,
         });
     }
 }

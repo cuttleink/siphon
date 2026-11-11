@@ -31,10 +31,10 @@ pub fn update(self: @This(), io: std.Io, pct: f32) !void {
     ) catch unreachable;
 
     {
-        const dots: usize = @round(pct / 100 * inner * 6);
+        const dots: usize = @round(pct / 100 * inner * 8);
         const bar = buf[top.len..][0..pad.len];
         for (0..inner) |i| bar[i * 3 ..][0..3].* =
-            text.braille[@min(dots -| i * 6, 6)].*;
+            text.braille[@min(dots -| i * 8, 8)].*;
     }
 
     try self.out.writeStreamingAll(io, &buf);
@@ -45,7 +45,7 @@ pub fn deinit(self: @This(), io: std.Io) !void {
 }
 
 const text = struct {
-    const braille = [_]*const [3]u8{ "⠀", "⠁", "⠃", "⠇", "⠏", "⠟", "⠿" };
+    const braille = [_]*const [3]u8{ "⠀", "⠁", "⠃", "⠇", "⡇", "⡏", "⡟", "⡿", "⣿" };
 
     const up = "\x1b[1A";
     const start = "\x1b[?2026h";

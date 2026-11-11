@@ -1,3 +1,4 @@
+const builtin = @import("builtin");
 const std = @import("std");
 
 pub fn build(b: *std.Build) void {
@@ -29,23 +30,24 @@ fn macos(
     target: std.Build.ResolvedTarget,
     optimize: std.lang.Optimize,
 ) *std.Build.Module {
-    const dep = b.dependency("xcode-frameworks", .{});
+    // Apple has a painful strategy of making stuff suck
+    if (builtin.os.tag != .macos)
+        @panic("unsupported outside macos");
+
     const trans = b.addTranslateC(.{
         .target = target,
         .optimize = optimize,
         .root_source_file = b.path("macos/include.h"),
     });
 
-    const frameworks = dep.path("Frameworks");
-    trans.addIncludePath(dep.path("include"));
-    trans.addFrameworkPath(frameworks);
-
     const c = trans.createModule();
-    c.addFrameworkPath(frameworks);
-    c.addLibraryPath(dep.path("lib"));
-    c.linkFramework("CoreFoundation", .{});
-    c.linkFramework("DiskArbitration", .{});
-    c.linkFramework("IOKit", .{});
+    c.addCSourceFile(.{ .file = b.path("macos/strings.c") });
+
+    inline for ([_][]const u8{
+        "CoreFoundation",
+        "IOKit",
+        "DiskArbitration",
+    }) |fw| c.linkFramework(fw, .{});
 
     return b.createModule(.{
         .root_source_file = b.path("macos/root.zig"),
