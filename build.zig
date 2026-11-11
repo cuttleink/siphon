@@ -33,7 +33,7 @@ fn macos(
     const trans = b.addTranslateC(.{
         .target = target,
         .optimize = optimize,
-        .root_source_file = b.path("os/macos.h"),
+        .root_source_file = b.path("macos/include.h"),
     });
 
     const frameworks = dep.path("Frameworks");
@@ -47,7 +47,7 @@ fn macos(
     c.linkFramework("IOKit", .{});
 
     return b.createModule(.{
-        .root_source_file = b.path("os/macos.zig"),
+        .root_source_file = b.path("macos/root.zig"),
         .imports = &.{.{ .name = "c", .module = c }},
     });
 }
