@@ -2,6 +2,7 @@ const os = @import("os");
 const std = @import("std");
 
 const Bar = @import("Bar.zig");
+const fmt = @import("fmt.zig");
 
 pub fn main(init: std.process.Init) !void {
     var args = try init.minimal.args
@@ -13,7 +14,7 @@ pub fn main(init: std.process.Init) !void {
         usage(name);
     const out = args.next() orelse
         if (std.mem.eql(u8, in, "ls"))
-            return ls()
+            return ls(init.io)
         else
             usage(name);
     if (args.next()) |_|
@@ -35,26 +36,38 @@ pub fn main(init: std.process.Init) !void {
     }
 }
 
-fn ls() !void {
+// TODO: This is an atrocity. This needs to be the first thing to be replaced
+// and done away with once the project is stable-ish.
+fn ls(io: std.Io) !void {
+    var buf: [fmt.row.len * 2]u8 = undefined;
+    var file = std.Io.File.stdout()
+        .writer(io, &buf);
+    const out = &file.interface;
+
     var iter: os.Iterator = try .init();
     defer iter.deinit();
 
+    try out.print(fmt.row, .{ "DEVICE", "SIZE", "VENDOR", "PRODUCT", "NAME" });
     while (iter.next()) |drive| {
         defer drive.deinit();
 
-        std.debug.print(
-            \\Vendor:  {s}
-            \\Product: {s}
-            \\Name:    {s}
-            \\Size:    {Bi:.2}
-            \\
-        , .{
+        var size: [fmt.size]u8 = undefined;
+        const str = if (drive.size == 0) "" else std.mem.print(
+            &size,
+            "{Bi:.1}",
+            .{drive.size},
+        ) catch unreachable;
+
+        try out.print(fmt.row, .{
+            drive.id(),
+            str,
             drive.vendor(),
             drive.product(),
             drive.name(),
-            drive.size,
         });
     }
+
+    try out.flush();
 }
 
 fn usage(name: []const u8) noreturn {

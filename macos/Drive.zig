@@ -12,7 +12,7 @@ size: u64 = 0,
 pub const vendor = bytes("_vendor");
 pub const product = bytes("_product");
 
-pub const bsd = bytes("_bsd");
+pub const id = bytes("_bsd");
 pub const name = bytes("_name");
 
 pub fn deinit(self: This) void {

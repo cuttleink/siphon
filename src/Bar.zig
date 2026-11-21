@@ -1,7 +1,8 @@
 const std = @import("std");
 
-const width = 80;
-const inner = width - 4;
+const fmt = @import("fmt.zig");
+
+const inner = fmt.width - 4;
 const name = "siphon";
 
 const field = text.rep(" ", inner - name.len);
@@ -45,7 +46,17 @@ pub fn deinit(self: @This(), io: std.Io) !void {
 }
 
 const text = struct {
-    const braille = [_]*const [3]u8{ "⠀", "⠁", "⠃", "⠇", "⡇", "⡏", "⡟", "⡿", "⣿" };
+    const braille = [_]*const [3]u8{
+        "⠀",
+        "⠁",
+        "⠃",
+        "⠇",
+        "⡇",
+        "⡏",
+        "⡟",
+        "⡿",
+        "⣿",
+    };
 
     const up = "\x1b[1A";
     const start = "\x1b[?2026h";
